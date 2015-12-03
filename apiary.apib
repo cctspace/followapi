@@ -1,0 +1,548 @@
+FORMAT: 1A
+HOST: http://mock.follow.org/
+
+# Follow version 17
+
+L’API Follow fait partie de la solution FollowWeb. Elle a été greffée à l'existant en rajoutant des 
+contrôleurs (MVC) spécifiques.
+
+__Remarques__ : 
+ * Les dates retournés par tous les appels à l’API ont le format yyyy/MM/dd'T'HH:mm:ss'Z'. 
+
+> Les appels avec le verbe OPTIONS sont uniquement pour simuler les réponses en cas d'échec de certains
+services et n'existent pas vraiment dans l'API.
+
+# Group Authentification
+
+
+## Authentification [/api/v17/auth]
+
+Effectue l’authentification d’un utilisateur. 
+
+L’authentification sur l’API reste strictement dépendante de l’authentification à FollowWeb et 
+peut être activité ou désactivé selon le besoin du site (voir Accès invité).
+
+Le jeton d’authentification est retourné sous forme d’un jeu de deux cookies .ASPXAUTH et ASP.NET 
+dans le Header de réponse. En absence de jetons d’authentification les services web répondront avec
+une erreur spécifique indiquant le manque d’authentification.
+
+### Success [POST]
+
++ Request (application/x-www-form-urlencoded)
+    +  Body
+
+            username=aName&password=aPassword
+
++ Response 200 (application/json)
+
+    +  Headers
+    
+            Set-Cookie: .ASPXAUTH=cookie1
+            Set-Cookie: ASP.NET_SessionId=cookie1
+
+    +  Body
+    
+            {
+                "userInfo": {
+                    "userName": "aNAme",
+                    "profileName": "aProfile",
+                    "userRoles": [
+                        "PAR_STATION",
+                        "ACCES_CONFIG",
+                        "PAR_RUBRIQUE",
+                        "EXP_TAB_MESURE",
+                        "PAR_CRB_TARAGE",
+                        "rol2"
+                    ]
+                }
+            }
+
+### Fails [OPTIONS]
+
++ Request (application/x-www-form-urlencoded)
+    +  Body
+
+            {
+                username=aName&password=aWrongPasword
+            }
+
++ Response 401 (application/json)
+
+        {
+            "error": {
+                "code" : 123,
+                "message": "aErrorMessage",
+                "debug": "aDebugMessage"
+            }
+        }
+        
+## Accès Invité [/api/v17/notAuthAccess]
+
+Indique si la plateforme Follow autorise les accès non authentifié.
+
+En cas de réponse négative l'appel à authentification __doit__ inclure des credentielles
+valides d'un utilisateur authorisé. 
+
+En cas de réponse positive l'appel à authentification __peut__ se faire en utilisant
+des crédentielles vides `username=&password=` et sera associé au profil Invité (code INVITE).
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+    
+        {
+            "notAuthenticatedAccess": true
+        }
+
+### Fails [OPTIONS]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+    
+        {
+            "notAuthenticatedAccess": false
+        }
+        
+# Group Événements
+
+> __TODO__ Description d'un événements
+
+## Liste Événements [/api/v17/events?filter={filter}&level={level}&begin={begin_date}&end={end_date}&origin={is_origin}]
+
++ Parameters
+    + filter (string) - filtre à appliquer c-à-d que si au message de l'événement ne contient ce
+    string alors il ne sera pas présent dans la liste retourné
+    + level (number) - niveau d'importance de l'événement, `1=INFORMATION , 2=IMPORTANT, 3=SEVERE`
+    + begin_date (string) - date de début de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'
+    + end_date (string) - date de fin de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'
+    + is_origin (bool) - true si l'événement n'as pas été déclenché par un autre événement,
+    false si il a été déclenché par un autre événement
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 0,
+                "codeLevel": "2",
+                "date": "2010/05/11T05:00:00Z",
+                "message": "Event of type 1 starts",
+                "eventType": "aType",
+                "isAlarm": false,
+                "flagEnded": false
+            },
+            {
+                "id": 0,
+                "codeLevel": "1",
+                "date": "2010/05/11T05:00:00Z",
+                "message": "Event of type 2 starts",
+                "eventType": "anotherType",
+                "isAlarm": true,
+                "flagEnded": false
+            }
+        ]
+
+# Group Mesures
+
+Une mesure est une valeur (soit mesurée par un capteur soit calculée) à un instant donné. Ces mesures sont
+regroupée en rubriques qui definnissent leur type ( 1 rurbrique -> x mesures ).
+
+## Liste mesures [/api/v17/rubrics/{rubric_id}/measures?begin={begin_date}&end={end_date}&steps={steps}]
+
+Récupère la liste des mesures d'une rubrique à une periodé donnée
+
++ Parameters
+    + rubric_id (number) - Identifiant de la rubrique
+    + begin_date (string) - date de début de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'
+    + end_date (string) - date de fin de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'
+    + steps (number) - fréquence d'échantillonage où 1 step équivaut à 5 minutes
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "value": 0.5,
+                "date": "2010/05/11T00:00:00Z"
+            },
+            {
+                "value": 2.5,
+                "date": "2010/05/11T00:05:00Z"
+            },
+            {
+                "value": 3.5,
+                "date": "2010/05/11T00:10:00Z"
+            }
+        ]
+
+# Group Rubriques
+
+Les rubriques sont des catégories de mesure dont une station est capable de faire. En terme général elles 
+sont associés à une station ( 1 station -> x rubriques ).
+
+## Rubrique [/api/v17/rubrics/{rubric_id}]
+
+Récupère une rubrique par son identifiant
+
+> Pas encore implémenté. Utiliser `Rubriques station`
+
++ Parameters
+    + rubric_id (number) - Identifiant de la rubrique
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        
+            {
+                "id": 1,
+                "label": "aRubricName",
+                "unit": "mm",
+                "thresholds": [
+                    {
+                        "level": -1,
+                        "description": "unavailable",
+                        "color": "#ffffff",
+                        "value": 0
+                    },
+                    {
+                        "level": 0,
+                        "description": "normal",
+                        "color": "#ffffff",
+                        "value": 55.5
+                    },
+                    {
+                        "level": 1,
+                        "description": "warning",
+                        "color": "#A1DEA7",
+                        "value": 101
+                    }
+                ],
+                "displayOrder": 1,
+                "measureType": "aType",
+                "currentLevel": 0,
+                "latest" : {
+                    "value": 0.061,
+                    "date": "2015/10/25T17:00:00Z"
+                },
+                "isDisplaySynoptique": true
+            }
+        
+
+## Selection Rubriques [/api/v17/rubrics?id={ids}]
+
+Récupère un sous ensemble de rubriques selon les identifiants des rubriques placés dans `{ids}`
+
+> Pas encore implémenté. Utiliser `Rubriques station`
+
++ Parameters
+    + ids (array) - liste d'identifants des rubriques a récupère de la forme 0,1,...
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 1,
+                "label": "aRubricName",
+                "unit": "mm",
+                "thresholds": [
+                    {
+                        "level": -1,
+                        "description": "unavailable",
+                        "color": "#ffffff",
+                        "value": 0
+                    },
+                    {
+                        "level": 0,
+                        "description": "normal",
+                        "color": "#ffffff",
+                        "value": 55.5
+                    },
+                    {
+                        "level": 1,
+                        "description": "warning",
+                        "color": "#A1DEA7",
+                        "value": 101
+                    }
+                ],
+                "displayOrder": 1,
+                "measureType": "aType",
+                "currentLevel": 0,
+                "latest" : {
+                    "value": 0.061,
+                    "date": "2015/10/25T17:00:00Z"
+                },
+                "isDisplaySynoptique": true
+            },
+            {
+                "id": 2,
+                "label": "anotherRubricName",
+                "unit": "cm",
+                "thresholds": [
+                    {
+                        "level": -1,
+                        "description": "unavailable",
+                        "color": "#ffffff",
+                        "value": 0
+                    },
+                    {
+                        "level": 0,
+                        "description": "normal",
+                        "color": "#ffffff",
+                        "value": 21.5
+                    },
+                    {
+                        "level": 1,
+                        "description": "warning",
+                        "color": "#A1DEA7",
+                        "value": 51.6
+                    }
+                ],
+                "displayOrder": 0,
+                "measureType": "anotherType",
+                "currentLevel": 0,
+                "latest" : {
+                    "value": 0.123,
+                    "date": "2015/10/26T17:00:00Z"
+                },
+                "isDisplaySynoptique": true
+            }
+        ]
+
+## Rubriques station [/api/v17/stations/{station_id}/rubrics]
+
+Récupère la liste des rubriques d'une station
+
++ Parameters
+    + station_id (number) - Identifiant de la station
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 1,
+                "label": "aRubricName",
+                "unit": "mm",
+                "thresholds": [
+                    {
+                        "level": -1,
+                        "description": "unavailable",
+                        "color": "#ffffff",
+                        "value": 0
+                    },
+                    {
+                        "level": 0,
+                        "description": "normal",
+                        "color": "#ffffff",
+                        "value": 55.5
+                    },
+                    {
+                        "level": 1,
+                        "description": "warning",
+                        "color": "#A1DEA7",
+                        "value": 101
+                    }
+                ],
+                "displayOrder": 1,
+                "measureType": "aType",
+                "currentLevel": 0,
+                "latest" : {
+                    "value": 0.061,
+                    "date": "2015/10/25T17:00:00Z"
+                },
+                "isDisplaySynoptique": true
+            },
+            {
+                "id": 2,
+                "label": "anotherRubricName",
+                "unit": "cm",
+                "thresholds": [
+                    {
+                        "level": -1,
+                        "description": "unavailable",
+                        "color": "#ffffff",
+                        "value": 0
+                    },
+                    {
+                        "level": 0,
+                        "description": "normal",
+                        "color": "#ffffff",
+                        "value": 21.5
+                    },
+                    {
+                        "level": 1,
+                        "description": "warning",
+                        "color": "#A1DEA7",
+                        "value": 51.6
+                    }
+                ],
+                "displayOrder": 0,
+                "measureType": "anotherType",
+                "currentLevel": 0,
+                "latest" : {
+                    "value": 0.123,
+                    "date": "2015/10/26T17:00:00Z"
+                },
+                "isDisplaySynoptique": true
+            }
+        ]
+        
+# Group Stations
+
+Les stations sont des equipements capables de réaliser différent types de mesure.
+Elles sont généralement placées auprès des bassins versants et apartiennent à un
+site spécifique.
+
+## Station [/api/v17/station/{station_id}]
+
+Récupère une station par son identifiant
+
++ Parameters
+    + station_id (number) - Identifiant de la station
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 1,
+                "name": "aStationName",
+                "warningColorLevel": "#45DA75",
+                "latitude": 4.68968,
+                "longitude": 45.60468,
+                "river": "aRiverName"
+            }
+        ]
+        
+## Liste Station [/api/v17/views/{view_id}/stations]
+
+Récupère toutes les stations d'une vue
+
++ Parameters
+    + view_id (number) - Identifiant de la vue
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 1,
+                "name": "aStationName",
+                "warningColorLevel": "#45DA75",
+                "latitude": 4.68968,
+                "longitude": 45.60468,
+                "river": "aRiverName"
+            },
+            {
+                "id": 2,
+                "name": "anotherStationName",
+                "warningColorLevel": "#EA4866",
+                "latitude": 31.45777777,
+                "longitude": -8.76025277,
+                "river": "anotherRiverName"
+            }
+        ]
+
+# Group Vues
+
+Les vues sont des conteneurs logiques de stations ( 1 vue -> x stations ) qui permettent de faire
+des recroupements nommés. Par exemple une vue de nom "Stations Meteo" peut contenir que les stations de
+type météorologiques de tout un site.
+
+## Vue [/api/v17/views/{view_id}]
+
+Récupère une vue par son identifiant
+
++ Parameters
+    + view_id (number) - Identifiant de la vue
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 4,
+                "name": "Rhône"
+            }
+        ]
+
+## Liste Vues [/api/v17/views/]
+
+Récupère toutes les vues d'un site
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 0,
+                "name": "All"
+            },
+            {
+                "id": 1,
+                "name": "Sub1"
+            },
+            {
+                "id": 2,
+                "name": "Sub2"
+            },
+            {
+                "id": 3,
+                "name": "Meteo"
+            }
+        ]
+
+## Selection Vues [/api/v17/views?id={query}]
+
+Récupère un sous ensemble de vues selon les identifiants des vues placés dans `{query}`
+
++ Parameters
+    + query (array) - liste d'identifants des vues a récupère de la forme 0,1,...
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 0,
+                "name": "All"
+            },
+            {
+                "id": 1,
+                "name": "Sub1"
+            }
+        ]
