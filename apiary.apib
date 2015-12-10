@@ -427,6 +427,42 @@ Récupère la liste des rubriques d'une station
                 "isDisplaySynoptique": true
             }
         ]
+
+# Group Sites
+
+## Liste Sites [/api/v17/sites/]
+
+Récupère la liste des noms des sites publiquement accessibles.
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            "ApiaryDev",
+            "SMBVL",
+            "SMAGGA"
+        ]
+
+## Selection Site [/api/v17/sites/{name}]
+
+Récupère un site par son nom
+
++ Parameters
+    + name (string) - nom du site
+
+### Success [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        {
+            "name": "ApiaryDev",
+            "url": "http://private-b7d33-followv171.apiary-mock.com"
+        }
         
 # Group Stations
 
@@ -568,39 +604,3 @@ Récupère un sous ensemble de vues selon les identifiants des vues placés dans
                 "name": "Sub1"
             }
         ]
-        
-# Group Sites
-
-## Liste Sites [/api/v17/sites/]
-
-Récupère la liste des noms des sites publiquement accessibles.
-
-### Success [GET]
-
-+ Request (application/json)
-
-+ Response 200 (application/json)
-
-        [
-            "ApiaryDev",
-            "SMBVL",
-            "SMAGGA"
-        ]
-
-## Selection Site [/api/v17/sites/{name}]
-
-Récupère un site par son nom
-
-+ Parameters
-    + name (string) - nom du site
-
-### Success [GET]
-
-+ Request (application/json)
-
-+ Response 200 (application/json)
-
-        {
-            "name": "ApiaryDev",
-            "url": "http://private-b7d33-followv171.apiary-mock.com"
-        }
