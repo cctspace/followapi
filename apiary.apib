@@ -9,9 +9,6 @@ contrôleurs (MVC) spécifiques.
 __Remarques__ : 
  * Les dates retournés par tous les appels à l’API ont le format yyyy/MM/dd'T'HH:mm:ss'Z'. 
 
-> Les appels avec le verbe OPTIONS sont uniquement pour simuler les réponses en cas d'échec de certains
-services et n'existent pas vraiment dans l'API.
-
 # Group Authentification
 
 
@@ -26,7 +23,7 @@ Le jeton d’authentification est retourné sous forme d’un jeu de deux cookie
 dans le Header de réponse. En absence de jetons d’authentification les services web répondront avec
 une erreur spécifique indiquant le manque d’authentification.
 
-### Success [POST]
+### POST [POST]
 
 + Request (application/x-www-form-urlencoded)
     +  Body
@@ -57,15 +54,6 @@ une erreur spécifique indiquant le manque d’authentification.
                 }
             }
 
-### Fails [OPTIONS]
-
-+ Request (application/x-www-form-urlencoded)
-    +  Body
-
-            {
-                username=aName&password=aWrongPasword
-            }
-
 + Response 401 (application/json)
 
         {
@@ -86,7 +74,7 @@ valides d'un utilisateur authorisé.
 En cas de réponse positive l'appel à authentification __peut__ se faire en utilisant
 des crédentielles vides `username=&password=` et sera associé au profil Invité (code INVITE).
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -94,16 +82,6 @@ des crédentielles vides `username=&password=` et sera associé au profil Invit�
     
         {
             "notAuthenticatedAccess": true
-        }
-
-### Fails [OPTIONS]
-
-+ Request (application/json)
-
-+ Response 200 (application/json)
-    
-        {
-            "notAuthenticatedAccess": false
         }
         
 # Group Événements
@@ -121,7 +99,7 @@ des crédentielles vides `username=&password=` et sera associé au profil Invit�
     + is_origin (bool) - true si l'événement n'as pas été déclenché par un autre événement,
     false si il a été déclenché par un autre événement
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -162,7 +140,7 @@ Récupère une ressource image grâce à son identifiant.
     + image_id (string) - Identifiant de l'image
 
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -185,7 +163,7 @@ Récupère la liste des mesures d'une rubrique à une periodé donnée
     + end_date (string) - date de fin de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'
     + steps (number) - fréquence d'échantillonage où 1 step équivaut à 5 minutes
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -220,7 +198,7 @@ Récupère une rubrique par son identifiant
 + Parameters
     + rubric_id (number) - Identifiant de la rubrique
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -271,7 +249,7 @@ Récupère un sous ensemble de rubriques selon les identifiants des rubriques pl
 + Parameters
     + ids (array) - liste d'identifants des rubriques a récupère de la forme 0,1,...
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -353,7 +331,7 @@ Récupère la liste des rubriques d'une station
 + Parameters
     + station_id (number) - Identifiant de la station
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -434,7 +412,7 @@ Récupère la liste des rubriques d'une station
 
 Récupère la liste des noms des sites publiquement accessibles.
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -453,7 +431,7 @@ Récupère un site par son nom
 + Parameters
     + name (string) - nom du site
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -477,7 +455,7 @@ Récupère une station par son identifiant
 + Parameters
     + station_id (number) - Identifiant de la station
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -501,7 +479,7 @@ Récupère toutes les stations d'une vue
 + Parameters
     + view_id (number) - Identifiant de la vue
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -539,7 +517,7 @@ Récupère une vue par son identifiant
 + Parameters
     + view_id (number) - Identifiant de la vue
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -556,7 +534,7 @@ Récupère une vue par son identifiant
 
 Récupère toutes les vues d'un site
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
@@ -588,7 +566,7 @@ Récupère un sous ensemble de vues selon les identifiants des vues placés dans
 + Parameters
     + query (array) - liste d'identifants des vues a récupère de la forme 0,1,...
 
-### Success [GET]
+### GET [GET]
 
 + Request (application/json)
 
