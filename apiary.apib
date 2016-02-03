@@ -9,6 +9,67 @@ contrôleurs (MVC) spécifiques.
 __Remarques__ : 
  * Les dates retournés par tous les appels à l’API ont le format yyyy/MM/dd'T'HH:mm:ss'Z'. 
 
+# Group Alarmes
+
+> La méthode "Liste des alarmes" permet de retourner la liste des alarmes sur une période donnée. 
+Elle sera principalement utilisée par l'application mobile pour la vue dédiée aux alarmes.
+La méthode "Callback des alarmes" est utilisée pour le suivi des alarmes. Cette méthode 
+sera appelée par le service de compte lorsque le statut d'une tranmission est mise à jour.
+
+## Liste des alarmes [/api/v17/alarmes?begin={begin_date}&end={end_date}&codeTypeAlarme={code_type_alarme}&userId={user_id}]
+
++ Parameters
+    + begin_date (string) - date de début de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'.
+    + end_date (string) - date de fin de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'.
+    + code_type_alarme (optional, string) - filtre les alarmes selon le code du type de l'alarme [AL_HYDRO, AL_FONCT, AL_SURV].
+    + user_id (optional, int) - filtre les alarmes selon les affectations à cet utilisateur 
+
+### GET [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 0,
+                "date": "2010/05/11T05:00:00Z",
+                "message": "Event of type 1 starts",
+                "dateAcquittement": "2010/05/11T05:00:00Z",
+                "dateFermeture": "2010/05/11T05:00:00Z",
+            },
+            {
+                "id": 0,
+                "date": "2010/05/11T05:00:00Z",
+                "message": "Event of type 1 starts",
+                "dateAcquittement": "2010/05/11T05:00:00Z",
+                "dateFermeture": "2010/05/11T05:00:00Z",
+            }
+        ]
+    
+## Callback des alarmes [/api/v17/callbackAlarmesOVH?id={id}&ptt={premium_tracking_technical}&dlr={delivery_receipt}&date={date}&sender={sender}&receiver={receiver}&descriptionDlr={descriptionDlr}&tag={tag}]
+
++ Parameters
+    + id (int) - identifiant du message yyyy/MM/dd'T'HH:mm:ss'Z'.
+    + ptt (optional, int) -  l'état très précis du message.
+    + dlr (int) - l'état actuel de la transmission.
+    + date (string) - date de mise à jour de la transmission yyyy/MM/dd'T'HH:mm:ss'Z'.
+    + sender (string) - expediteur du message.
+    + receiver (string) - destinataire du message.
+    + descriptionDlr (string) - l'état actuel de la transmission.
+    + tag (string) - tag de suivi associé à la transmission.
+    
+
+### GET [GET]
+
++ Request (application/json)
+
++ Response 200 (application/json)
+
+        {
+            "statutReussite": 0
+        }
+        
 # Group Authentification
 
 
@@ -44,12 +105,10 @@ une erreur spécifique indiquant le manque d’authentification.
                     "userName": "aNAme",
                     "profileName": "aProfile",
                     "userRoles": [
-                        "PAR_STATION",
-                        "ACCES_CONFIG",
-                        "PAR_RUBRIQUE",
                         "EXP_TAB_MESURE",
-                        "PAR_CRB_TARAGE",
-                        "rol2"
+                        "ACCES_MESURE",
+                        "ACCES_JOURNAL",
+                        "AUTRE_ROLE"
                     ]
                 }
             }
@@ -448,7 +507,7 @@ Les stations sont des equipements capables de réaliser différent types de mesu
 Elles sont généralement placées auprès des bassins versants et apartiennent à un
 site spécifique.
 
-## Station [/api/v17/station/{station_id}]
+## Station [/api/v17/stations/{station_id}]
 
 Récupère une station par son identifiant
 
