@@ -16,13 +16,13 @@ Elle sera principalement utilisée par l'application mobile pour la vue dédiée
 La méthode "Callback des alarmes" est utilisée pour le suivi des alarmes. Cette méthode 
 sera appelée par le service de compte lorsque le statut d'une tranmission est mise à jour.
 
-## Liste des alarmes [/api/v17/alarmes?begin={begin_date}&end={end_date}&codeTypeAlarme={code_type_alarme}&userId={user_id}]
+## Liste des alarmes [/api/v17/alarmes?begin={begin_date}&end={end_date}&codeTypeAlarme={code_type_alarme}&operateurId={operateur_id}]
 
 + Parameters
     + begin_date (string) - date de début de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'.
     + end_date (string) - date de fin de la periode au format yyyy/MM/dd'T'HH:mm:ss'Z'.
     + code_type_alarme (optional, string) - filtre les alarmes selon le code du type de l'alarme [AL_HYDRO, AL_FONCT, AL_SURV].
-    + user_id (optional, int) - filtre les alarmes selon les affectations à cet utilisateur 
+    + operateur_id (optional, int) - filtre les alarmes selon les affectations à cet opérateur 
 
 ### GET [GET]
 
